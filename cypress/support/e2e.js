@@ -1,20 +1,21 @@
-// ***********************************************************
-// This example support/e2e.js is processed and
-// loaded automatically before your test files.
-//
-// This is a great place to put global configuration and
-// behavior that modifies Cypress.
-//
-// You can change the location of this file or turn off
-// automatically serving support files with the
-// 'supportFile' configuration option.
-//
-// You can read more here:
-// https://on.cypress.io/configuration
-// ***********************************************************
+import addContext from "mochawesome/addContext";
+const path = require("path");
 
-// Import commands.js using ES2015 syntax:
-import './commands'
-
-// Alternatively you can use CommonJS syntax:
-// require('./commands')
+Cypress.on("test:after:run", (test, runnable) => {
+  if (test.state === "failed") {
+    Cypress.spec.name.split("/").pop().replace(".js", "");
+    const screenshotFileName =
+      `${runnable.parent.title} -- ${test.title} (failed).png`.replace(
+        / /g,
+        "%20"
+      );
+    const screenshotPath = path.join(
+      "..",
+      "cypress",
+      "screenshots",
+      Cypress.spec.name,
+      screenshotFileName
+    );
+    addContext({ test }, screenshotPath);
+  }
+});
